@@ -16,33 +16,33 @@ const ResizableButton: React.FC<Props> = (props) => {
     var pic = pico
     var link = "/nico"
 
-    switch(props.id) { 
+    switch(props.id) {
         case "youtube": {
             pic = pic_youtube
-            link = "/youtube"
+            link = "/YT"
            break
         }
-        case "twitch": { 
+        case "twitch": {
             pic = pic_twitch
             link = "/twitch"
            break
         }
-        case "spotify": { 
+        case "spotify": {
             pic = pic_spotify
             link = "/spotify"
            break;
         }
-        case "nico": { 
+        case "nico": {
             pic = pico
             link = "/nico"
            break;
         }
-        default: { 
+        default: {
             pic = pico
             link = "/nico"
            break;
         }
-     } 
+     }
 
     useEffect(() => {
         const handleResize = () => {
@@ -53,11 +53,11 @@ const ResizableButton: React.FC<Props> = (props) => {
 
           setButtonHeight(buttonHeightPercentage);
         };
-    
+
         handleResize(); // Initial resize
-    
+
         window.addEventListener('resize', handleResize);
-    
+
         return () => {
           window.removeEventListener('resize', handleResize);
         };
@@ -71,5 +71,5 @@ const ResizableButton: React.FC<Props> = (props) => {
       <button className="ResizableButton"  style= {{height: `${buttonHeight}px`, width: `250px`}} onClick = {handleButtonClick}><img src={pic} style={{width: "200px", height: "200px" }}></img></button>
     );
   };
-  
+
   export default ResizableButton;
