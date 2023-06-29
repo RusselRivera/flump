@@ -37,26 +37,40 @@ const Playlist: React.FC = () => {
 
   // Allows the client to add a video to the playlist via video ID: appends the video the end of the lsit
   const handleAddId = () => {
+    // Take URL and obtain the Video ID from it - Make sure that it's not undefined
+    if(inputValue.trim() == '') {
+      return
+    }
+    const params = new URLSearchParams(new URL (inputValue).search)
+    const vid_id = params.get('v')
+
     // player is not visible in this case, so render it as well by setting current video
     let empty_list = false
     if(playlist.length == 0) {
       empty_list = true
     }
 
-    let tux = checkDuplicate(inputValue)
-    if(tux) {
-      setInputValue('')
-    }
-    else {
-      if(inputValue.trim() !== '') {
-        setPlaylist((prevPlaylist) => [...prevPlaylist, inputValue])
-        getTitle(inputValue)
+
+    // As long as Video ID isn't undefined...
+    if(vid_id !== null) {
+      // Check for duplicates in the playlist
+      let duplicate = checkDuplicate(vid_id)
+      if(duplicate) {
+        setInputValue('')
+      }
+      else {
+        setPlaylist((prevPlaylist) => [...prevPlaylist, vid_id])
+        getTitle(vid_id)
         setInputValue('')
         if(empty_list) {
-          handlePlayVideo(inputValue)
+          handlePlayVideo(vid_id)
         }
       }
     }
+    else {
+      setInputValue('')
+    }
+
 
 
   }
@@ -88,17 +102,16 @@ const Playlist: React.FC = () => {
   const goNext = () => {
     const removed_id = playlist.shift()
     const removed_title = videolist.shift()
+    // BUG: When a single video is looped, the code breaks and the video doesn't actually loop
     if(loop && removed_id !== undefined && removed_title !== undefined) {
       setPlaylist((prevPlaylist) => [...prevPlaylist, removed_id])
       setVideolist((prevVideolist) => [...prevVideolist, removed_title])
-      setCurrentVideo(playlist[0])
     }
     else {
       setPlaylist(playlist)
       setVideolist(videolist)
-      setCurrentVideo(playlist[0])
     }
-
+    setCurrentVideo(playlist[0])
   }
 
   const opts: YouTubeProps['opts'] = {
