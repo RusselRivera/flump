@@ -31,11 +31,9 @@ ipcMain.on('ipc-example', async (event, arg) => {
   event.reply('ipc-example', msgTemplate('pong'));
 });
 
-// addLink event fore storing the playlist in an array
-let playlist = [];
-ipcMain.on('addLink', (event, link) => {
-  playlist.push(link);
-});
+ipcMain.on('openExternalLink', async (event, link) => {
+  shell.openExternal(link);
+})
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
