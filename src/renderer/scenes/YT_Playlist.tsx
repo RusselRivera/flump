@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import YouTube, {YouTubeProps} from 'react-youtube';
 import axios from 'axios'
+import socket from '../../sockets'
 
 const Playlist: React.FC = () => {
 
@@ -13,28 +14,36 @@ const Playlist: React.FC = () => {
   const [currentVideo, setCurrentVideo] = useState('')
   // State variable for the Titles of the videos in the playlist
   const [videolist, setVideolist] = useState<string[]>([])
-  // State variable for loop control
-  const [loop, setLoop] = useState(false)
 
-  // Disallow duplicates
-  function checkDuplicate(vid: string) {
-    for(let index = 0; index < playlist.length; index++) {
-      if(playlist[index] == vid) {
-        return true
-      }
+
+
+  // All socket response stuff goes here
+  useEffect(() => {
+    // When the client connects back to the server, retrieve the video currently being played and update the playlist
+    socket.emit('reconnection')
+    // When the server responds to the client with what video to play
+    socket.on('playVideo', (vid_url) => {
+      console.log("Received video to play:", vid_url)
+      handlePlayVideo(vid_url)
+    })
+    // When the server tells the client that the playlist has been updated, re-render the list of videos queued
+    socket.on('updatePlaylist', (videos) => {
+      console.log("Update Playlist Request Received")
+      updatePlaylist(videos)
+    })
+    // IDK bruv
+    return () => {
+      socket.off('serverResponse')
     }
-    return false
-  }
+  }, [])
 
   const handleLoop = () => {
-    setLoop(!loop)
+    socket.emit('toggleLoop')
   }
-
   // Detects input event and updates
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
   }
-
   // Allows the client to add a video to the playlist via video ID: appends the video the end of the lsit
   const handleAddId = () => {
     // Take URL and obtain the Video ID from it - Make sure that it's not undefined
@@ -44,76 +53,50 @@ const Playlist: React.FC = () => {
     const params = new URLSearchParams(new URL (inputValue).search)
     const vid_id = params.get('v')
 
-    // player is not visible in this case, so render it as well by setting current video
-    let empty_list = false
-    if(playlist.length == 0) {
-      empty_list = true
-    }
-
-
     // As long as Video ID isn't undefined...
     if(vid_id !== null) {
-      // Check for duplicates in the playlist
-      let duplicate = checkDuplicate(vid_id)
-      if(duplicate) {
-        setInputValue('')
-      }
-      else {
-        setPlaylist((prevPlaylist) => [...prevPlaylist, vid_id])
-        getTitle(vid_id)
-        setInputValue('')
-        if(empty_list) {
-          handlePlayVideo(vid_id)
-        }
-      }
+      socket.emit('addVideo', vid_id)
+      setInputValue('')
     }
     else {
       setInputValue('')
     }
-
-
-
   }
-
   // Set the current video
   const handlePlayVideo = (videoId: string) => {
     setCurrentVideo(videoId);
   }
-
   // When the Youtube player is ready ...
   const onPlayerReady: YouTubeProps['onReady'] = (event) => {
     event.target.playVideo();
   }
-
+  // Updates queue of videos
+  async function updatePlaylist(videos : string[]) {
+    // Clear the video list and re-render
+    setVideolist([])
+    console.log(videos)
+    console.log("Obtaining Titles...")
+    for(let i = 0; i < videos.length; i++) {
+      await getTitle(videos[i])
+    }
+  }
   // Obtain title of video
   async function getTitle(video_id: string) {
     const api_key = 'AIzaSyAvyM3I2meRzqSvs0_T1CIVfd_Q7htP9UE'
     try {
       const response = await axios.get(`https://www.googleapis.com/youtube/v3/videos?id=${video_id}&key=${api_key}&part=snippet`)
       const video_title = response.data.items[0].snippet.title
+      console.log("Video title found:", video_title)
       setVideolist((prevVideolist) => [...prevVideolist, video_title])
     }
     catch (error) {
       console.log('Error in retrieving title information:', error)
     }
   }
-
   // When video ends, dequeue and start the next video immediately
   const goNext = () => {
-    const removed_id = playlist.shift()
-    const removed_title = videolist.shift()
-    // BUG: When a single video is looped, the code breaks and the video doesn't actually loop
-    if(loop && removed_id !== undefined && removed_title !== undefined) {
-      setPlaylist((prevPlaylist) => [...prevPlaylist, removed_id])
-      setVideolist((prevVideolist) => [...prevVideolist, removed_title])
-    }
-    else {
-      setPlaylist(playlist)
-      setVideolist(videolist)
-    }
-    setCurrentVideo(playlist[0])
+    socket.emit('goNext')
   }
-
   const opts: YouTubeProps['opts'] = {
     height: '390',
     width: '640',
@@ -132,7 +115,7 @@ const Playlist: React.FC = () => {
       <button onClick = {goNext}> Skip Video</button>
       <button onClick = {handleLoop}> Loop</button>
       <ul>
-        {playlist.map((id,index) => (
+        {videolist.map((id,index) => (
           <li key = {index}>
             {videolist[index]}
             </li>

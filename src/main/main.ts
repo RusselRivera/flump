@@ -31,11 +31,10 @@ ipcMain.on('ipc-example', async (event, arg) => {
   event.reply('ipc-example', msgTemplate('pong'));
 });
 
-// addLink event fore storing the playlist in an array
-let playlist = [];
-ipcMain.on('addLink', (event, link) => {
-  playlist.push(link);
-});
+// open external link
+ipcMain.on('open-url', async (event, url) => {
+  shell.openExternal(url)
+})
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -81,6 +80,8 @@ const createWindow = async () => {
     height: 728,
     icon: getAssetPath('icon.png'),
     webPreferences: {
+      // Temp disable CORS
+      webSecurity: false,
       preload: app.isPackaged
         ? path.join(__dirname, 'preload.js')
         : path.join(__dirname, '../../.erb/dll/preload.js'),

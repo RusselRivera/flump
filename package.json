@@ -104,7 +104,8 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.13.0",
-    "react-youtube": "^10.1.0"
+    "react-youtube": "^10.1.0",
+    "socket.io-client": "^4.7.1"
   },
   "devDependencies": {
     "@electron/notarize": "^1.2.3",
