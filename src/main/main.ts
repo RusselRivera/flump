@@ -31,9 +31,8 @@ ipcMain.on('ipc-example', async (event, arg) => {
   event.reply('ipc-example', msgTemplate('pong'));
 });
 
-// open external link
-ipcMain.on('open-url', async (event, url) => {
-  shell.openExternal(url)
+ipcMain.on('openExternalLink', async (event, link) => {
+  shell.openExternal(link);
 })
 
 if (process.env.NODE_ENV === 'production') {
