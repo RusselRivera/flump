@@ -6,9 +6,16 @@ import YT from "./scenes/YoutubeSelectScene"
 import Login from "./scenes/LoginScene"
 import { useNavigate } from 'react-router-dom'
 import socket from '../sockets'
+import React, { useEffect } from 'react';
 
 function Hello() {
   const navigate = useNavigate();
+  
+  useEffect(() => {
+    window.electron.ipcRenderer.on('login-data', (message) => {
+      console.log(message.substring(message.indexOf("?data=") + "?data=".length));
+    });
+  }, []);
 
   // Server will send 'lobbyJoin' to have the client join a lobby
   socket.on('joinLobby', (lobby_id) => {
@@ -61,7 +68,7 @@ function Hello() {
   }
 
   const handleButtonClick = () => {
-    window.electron.ipcRenderer.sendMessage("openExternalLink", "http://google.com");
+    window.electron.ipcRenderer.sendMessage("openExternalLink", "http://localhost:365565/login");
   }
 
   return (

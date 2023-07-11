@@ -49,8 +49,6 @@ const ResizableButton: React.FC<Props> = (props) => {
           const windowHeight = window.innerHeight;
           const buttonHeightPercentage = windowHeight * .5; // Adjust the percentage value as needed
 
-        console.log(buttonHeightPercentage)
-
           setButtonHeight(buttonHeightPercentage);
         };
 
