@@ -12,7 +12,7 @@ function Hello() {
   const navigate = useNavigate();
   
   useEffect(() => {
-    window.electron.ipcRenderer.on('login-data', (message) => {
+    window.electron.ipcRenderer.on('login-data', (message: string) => {
       console.log(message.substring(message.indexOf("?data=") + "?data=".length));
     });
   }, []);
@@ -28,19 +28,19 @@ function Hello() {
 
   // Server will send 'noLobby' if the lobby id given is not valid
   socket.on('noLobby', () => {
-    let response = document.getElementById('lobby-id-response')
+    let response = document.getElementById('lobby-id-response') as HTMLSpanElement
     response.innerText = "Lobby not found"
   })
 
   // Server will send 'noPassword' if the lobby password given is not valid
   socket.on('noPassword', () => {
-    let response = document.getElementById('lobby-password-response')
+    let response = document.getElementById('lobby-password-response')  as HTMLSpanElement
     response.innerText = "Incorrect password"
   })
 
   const joinLobbyButton = () => {
-    let id_input = document.getElementById('join-lobby-ID')
-    let password_input = document.getElementById('join-lobby-password')
+    let id_input = document.getElementById('join-lobby-ID') as HTMLInputElement
+    let password_input = document.getElementById('join-lobby-password') as HTMLInputElement
     let lobby_id = id_input.value;
     let lobby_password = password_input.value;
 
@@ -48,10 +48,10 @@ function Hello() {
   }
 
   const createLobbyButton = () => {
-    let name_input = document.getElementById('create-lobby-name')
+    let name_input = document.getElementById('create-lobby-name') as HTMLInputElement
     let privacy_input = document.getElementsByName('create-lobby-privacy')
-    let description_input = document.getElementById('create-lobby-description')
-    let password_input = document.getElementById('create-lobby-password')
+    let description_input = document.getElementById('create-lobby-description') as HTMLInputElement
+    let password_input = document.getElementById('create-lobby-password') as HTMLInputElement
 
     let name = name_input.value
     let privacy
@@ -59,8 +59,9 @@ function Hello() {
     let password = password_input.value
 
     for (let i = 0; i < privacy_input.length; i++) {
-      if (privacy_input[i].checked == true) {
-        privacy = privacy_input[i].value
+      let radio_button = privacy_input[i] as HTMLInputElement
+      if (radio_button.checked == true) {
+        privacy = radio_button.value
       }
     }
 

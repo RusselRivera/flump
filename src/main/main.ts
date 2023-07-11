@@ -135,7 +135,7 @@ app.on('window-all-closed', () => {
 });
 
 const lock = app.requestSingleInstanceLock()
-let login_data = ""
+let login_data
 
 if (!lock) {
   app.quit()
@@ -145,7 +145,7 @@ if (!lock) {
     if (mainWindow) {
       if (mainWindow.isMinimized()) mainWindow.restore()
       mainWindow.focus()
-      login_data = commandLine.pop().slice(0, -1)
+      login_data = commandLine.pop()?.slice(0, -1)
       mainWindow.webContents.send("login-data", login_data)
     }
   })
@@ -160,7 +160,7 @@ if (!lock) {
   }).catch(console.log);
 
   app.on('open-url', (event, url) => {
-    login_data = url
-    mainWindow.webContents.send("login-data", login_data)
+    if (mainWindow)
+      mainWindow.webContents.send("login-data", url)
   })
 }
