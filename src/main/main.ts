@@ -88,7 +88,7 @@ const createWindow = async () => {
         : path.join(__dirname, '../../.erb/dll/preload.js'),
     },
   });
-  
+
   mainWindow.webContents.openDevTools()
 
   mainWindow.loadURL(resolveHtmlPath('index.html'));
@@ -137,18 +137,18 @@ app.on('window-all-closed', () => {
 const lock = app.requestSingleInstanceLock()
 let login_data
 
-if (!lock) {
-  app.quit()
-} else {
-  app.on('second-instance', (event, commandLine, workingDirectory) => {
-    // Someone tried to run a second instance, we should focus our window.
-    if (mainWindow) {
-      if (mainWindow.isMinimized()) mainWindow.restore()
-      mainWindow.focus()
-      login_data = commandLine.pop()?.slice(0, -1)
-      mainWindow.webContents.send("login-data", login_data)
-    }
-  })
+// if (!lock) {
+//   app.quit()
+// } else {
+//   app.on('second-instance', (event, commandLine, workingDirectory) => {
+//     // Someone tried to run a second instance, we should focus our window.
+//     if (mainWindow) {
+//       if (mainWindow.isMinimized()) mainWindow.restore()
+//       mainWindow.focus()
+//       login_data = commandLine.pop()?.slice(0, -1)
+//       mainWindow.webContents.send("login-data", login_data)
+//     }
+//   })
 
   app.whenReady().then(() => {
     createWindow();
@@ -163,4 +163,4 @@ if (!lock) {
     if (mainWindow)
       mainWindow.webContents.send("login-data", url)
   })
-}
+// }

@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import YouTube, {YouTubeProps, YT} from 'react-youtube';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios'
@@ -51,6 +51,9 @@ const Playlist: React.FC = () => {
     // Server broadcasting playback changes
     socket.on('receiveInfo', (playbackState, playbackTime) => {
       updatePlayer(playbackState, playbackTime)
+    })
+    socket.on('rateChange', (playbackRate) => {
+      changePlayerRate(playbackRate)
     })
     // IDK bruv
     return () => {
@@ -123,7 +126,6 @@ const Playlist: React.FC = () => {
     const player = event?.target
     const playbackState = player.getPlayerState()
     const playerTime = player.getCurrentTime()
-    console.log(playerTime)
     console.log("Player State Changed:", playbackState)
     if(playbackState != YouTube.PlayerState.BUFFERING) {
       socket.emit('playbackChange', playbackState, playerTime)
@@ -145,6 +147,17 @@ const Playlist: React.FC = () => {
     }
   }
 
+  // Playback Rate is changed
+  const onRateChange = (event : YT.YouTubeEvent<number>) => {
+    socket.emit('playbackRateChange', event.target.getPlaybackRate())
+  }
+
+  // Change the player rate
+  const changePlayerRate = (playerRate : number) => {
+    const player = playerReference.current?.internalPlayer
+    player.setPlaybackRate( playerRate)
+  }
+
   // Updates server with the time stamp of the video every 3 seconds
   const updateTime = async () => {
     const player = playerReference.current?.internalPlayer
@@ -156,7 +169,7 @@ const Playlist: React.FC = () => {
       socket.emit('updateTime', time)
     }
   }
-  setInterval(updateTime, 3000)
+  setInterval(updateTime, 1000)
 
   const opts: YouTubeProps['opts'] = {
     height: '390',
@@ -181,7 +194,7 @@ const Playlist: React.FC = () => {
             </li>
         ))}
       </ul>
-      {currentVideo && <YouTube videoId = {currentVideo} opts = {opts} onEnd={goNext} onStateChange={handlePlaybackChange} ref={playerReference}/>}
+      {currentVideo && <YouTube videoId = {currentVideo} opts = {opts} onEnd={goNext} onStateChange={handlePlaybackChange} onPlaybackRateChange={event => {onRateChange(event)}} ref={playerReference}/>}
     </div>
   )
 

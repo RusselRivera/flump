@@ -10,7 +10,7 @@ import React, { useEffect } from 'react';
 
 function Hello() {
   const navigate = useNavigate();
-  
+
   useEffect(() => {
     window.electron.ipcRenderer.on('login-data', (message: string) => {
       console.log(message.substring(message.indexOf("?data=") + "?data=".length));
@@ -69,7 +69,7 @@ function Hello() {
   }
 
   const handleButtonClick = () => {
-    window.electron.ipcRenderer.sendMessage("openExternalLink", "http://localhost:365565/login");
+    window.electron.ipcRenderer.sendMessage("openExternalLink", "http://localhost:35565/login");
   }
 
   return (
