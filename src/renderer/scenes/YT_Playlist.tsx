@@ -1,11 +1,14 @@
 import React, {useState, useEffect} from 'react';
 import YouTube, {YouTubeProps, YT} from 'react-youtube';
+import { useLocation } from 'react-router-dom';
 import axios from 'axios'
 import socket from '../../sockets'
+import { useNavigate } from 'react-router-dom'
 
 const Playlist: React.FC = () => {
 
   const playerReference = React.useRef<YouTube>(null)
+  const navigate = useNavigate();
 
   // State variable for the Video ID of the playlist
   const [playlist, setPlaylist] = useState<string[]>([])
@@ -16,16 +19,29 @@ const Playlist: React.FC = () => {
   // State variable for the Titles of the videos in the playlist
   const [videolist, setVideolist] = useState<string[]>([])
 
-
+  const location = useLocation()
 
   // All socket response stuff goes here
   useEffect(() => {
     // When the client connects back to the server, retrieve the video currently being played and update the playlist
-    socket.emit('reconnection')
+    let lobby_id = location.state.lobby_id
+
+    console.log(lobby_id)
+
+    console.log("joining lobby " + lobby_id)
+
+    socket.emit('lobbyJoin')
     // When the server responds to the client with what video to play
     socket.on('playVideo', (vid_url) => {
       console.log("Received video to play:", vid_url)
       handlePlayVideo(vid_url)
+    })
+    socket.on('return', () => {
+      navigate("/", {
+        state: {
+          message: 'no_lobby',
+        }
+      })
     })
     // When the server tells the client that the playlist has been updated, re-render the list of videos queued
     socket.on('updatePlaylist', (videos) => {
@@ -150,7 +166,6 @@ const Playlist: React.FC = () => {
       autoplay: 1,
     },
   };
-
 
   return (
     <div>

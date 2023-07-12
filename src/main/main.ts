@@ -23,17 +23,19 @@ class AppUpdater {
   }
 }
 
-let mainWindow: BrowserWindow | null = null;
-
-ipcMain.on('ipc-example', async (event, arg) => {
-  const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
-  console.log(msgTemplate(arg));
-  event.reply('ipc-example', msgTemplate('pong'));
-});
-
 ipcMain.on('openExternalLink', async (event, link) => {
   shell.openExternal(link);
 })
+
+if (process.defaultApp) {
+  if (process.argv.length >= 2) {
+    app.setAsDefaultProtocolClient('flump', process.execPath, [path.resolve(process.argv[1])])
+  }
+} else {
+  app.setAsDefaultProtocolClient('flump')
+}
+
+let mainWindow: BrowserWindow | null = null;
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -86,6 +88,8 @@ const createWindow = async () => {
         : path.join(__dirname, '../../.erb/dll/preload.js'),
     },
   });
+  
+  mainWindow.webContents.openDevTools()
 
   mainWindow.loadURL(resolveHtmlPath('index.html'));
 
@@ -130,14 +134,33 @@ app.on('window-all-closed', () => {
   }
 });
 
-app
-  .whenReady()
-  .then(() => {
+const lock = app.requestSingleInstanceLock()
+let login_data
+
+if (!lock) {
+  app.quit()
+} else {
+  app.on('second-instance', (event, commandLine, workingDirectory) => {
+    // Someone tried to run a second instance, we should focus our window.
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore()
+      mainWindow.focus()
+      login_data = commandLine.pop()?.slice(0, -1)
+      mainWindow.webContents.send("login-data", login_data)
+    }
+  })
+
+  app.whenReady().then(() => {
     createWindow();
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the
       // dock icon is clicked and there are no other windows open.
       if (mainWindow === null) createWindow();
     });
+  }).catch(console.log);
+
+  app.on('open-url', (event, url) => {
+    if (mainWindow)
+      mainWindow.webContents.send("login-data", url)
   })
-  .catch(console.log);
+}

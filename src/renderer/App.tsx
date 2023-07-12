@@ -5,17 +5,71 @@ import ResizableButton from './Button';
 import YT from "./scenes/YoutubeSelectScene"
 import Login from "./scenes/LoginScene"
 import { useNavigate } from 'react-router-dom'
-
-function openURL() {
-  window.electron.ipcRenderer.sendMessage( "open-url", "https://google.com")
-}
+import socket from '../sockets'
+import React, { useEffect } from 'react';
 
 function Hello() {
   const navigate = useNavigate();
+  
+  useEffect(() => {
+    window.electron.ipcRenderer.on('login-data', (message: string) => {
+      console.log(message.substring(message.indexOf("?data=") + "?data=".length));
+    });
+  }, []);
+
+  // Server will send 'lobbyJoin' to have the client join a lobby
+  socket.on('joinLobby', (lobby_id) => {
+    navigate("/YT", {
+      state: {
+        lobby_id: lobby_id,
+      }
+    });
+  })
+
+  // Server will send 'noLobby' if the lobby id given is not valid
+  socket.on('noLobby', () => {
+    let response = document.getElementById('lobby-id-response') as HTMLSpanElement
+    response.innerText = "Lobby not found"
+  })
+
+  // Server will send 'noPassword' if the lobby password given is not valid
+  socket.on('noPassword', () => {
+    let response = document.getElementById('lobby-password-response')  as HTMLSpanElement
+    response.innerText = "Incorrect password"
+  })
+
+  const joinLobbyButton = () => {
+    let id_input = document.getElementById('join-lobby-ID') as HTMLInputElement
+    let password_input = document.getElementById('join-lobby-password') as HTMLInputElement
+    let lobby_id = id_input.value;
+    let lobby_password = password_input.value;
+
+    socket.emit('checkLobby', lobby_id, lobby_password)
+  }
+
+  const createLobbyButton = () => {
+    let name_input = document.getElementById('create-lobby-name') as HTMLInputElement
+    let privacy_input = document.getElementsByName('create-lobby-privacy')
+    let description_input = document.getElementById('create-lobby-description') as HTMLInputElement
+    let password_input = document.getElementById('create-lobby-password') as HTMLInputElement
+
+    let name = name_input.value
+    let privacy
+    let description = description_input.value
+    let password = password_input.value
+
+    for (let i = 0; i < privacy_input.length; i++) {
+      let radio_button = privacy_input[i] as HTMLInputElement
+      if (radio_button.checked == true) {
+        privacy = radio_button.value
+      }
+    }
+
+    socket.emit('createLobby', name, privacy, description, password)
+  }
+
   const handleButtonClick = () => {
-    window.electron.ipcRenderer.sendMessage("openExternalLink", "http://google.com");
-    //window.Electron.shell.openExternal("https://google.com");
-    //navigate("/login")
+    window.electron.ipcRenderer.sendMessage("openExternalLink", "http://localhost:365565/login");
   }
 
   return (
@@ -26,9 +80,6 @@ function Hello() {
       <h1>electron-react-boilerplate</h1>
       <button id = "login-button" onClick = {handleButtonClick}></button>
       <div className="Hello" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gridGap: 20 }}>
-        <div>
-          <button onClick={openURL}>Press Here</button>
-        </div>
         <div>
           <ResizableButton id = "youtube" />
         </div>
@@ -42,6 +93,30 @@ function Hello() {
           <ResizableButton id = "nico"/>
         </div>
       </div>
+      <br></br>
+      <div>
+        Lobby ID: <input id = "join-lobby-ID" /><span id = "lobby-id-response"></span>
+      </div>
+      <div>
+        Lobby Password: <input id = "join-lobby-password" /><span id = "lobby-password-response"></span>
+      </div>
+      <button id = "login-button" onClick = {joinLobbyButton}>Join Lobby by ID</button>
+      <br></br>
+      <div>
+        Lobby Name: <input id = "create-lobby-name" />
+      </div>
+      <div>
+        Private: <input type="radio" name="create-lobby-privacy" value="yes" checked />
+          Yes<input type="radio" name="create-lobby-privacy" value="no" />
+          No
+      </div>
+      <div>
+        Description: <input id = "create-lobby-description" />
+      </div>
+      <div>
+        Password: <input id = "create-lobby-password" />
+      </div>
+      <button id = "login-button" onClick = {createLobbyButton}>Create New Lobby</button>
     </div>
   );
 }
