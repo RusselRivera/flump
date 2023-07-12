@@ -1,10 +1,11 @@
 import React, {useState, useEffect} from 'react';
-import YouTube, {YouTubeProps} from 'react-youtube';
+import YouTube, {YouTubeProps, YT} from 'react-youtube';
 import axios from 'axios'
 import socket from '../../sockets'
 
 const Playlist: React.FC = () => {
 
+  const playerReference = React.useRef<YouTube>(null)
 
   // State variable for the Video ID of the playlist
   const [playlist, setPlaylist] = useState<string[]>([])
@@ -30,6 +31,10 @@ const Playlist: React.FC = () => {
     socket.on('updatePlaylist', (videos) => {
       console.log("Update Playlist Request Received")
       updatePlaylist(videos)
+    })
+    // Server broadcasting playback changes
+    socket.on('receiveInfo', (playbackState, playbackTime) => {
+      updatePlayer(playbackState, playbackTime)
     })
     // IDK bruv
     return () => {
@@ -97,6 +102,46 @@ const Playlist: React.FC = () => {
   const goNext = () => {
     socket.emit('goNext')
   }
+  // Event handler for when a client pauses, unpauses, or scrubs the video
+  const handlePlaybackChange = (event:  YT.onStateChangeEvent) => {
+    const player = event?.target
+    const playbackState = player.getPlayerState()
+    const playerTime = player.getCurrentTime()
+    console.log(playerTime)
+    console.log("Player State Changed:", playbackState)
+    if(playbackState != YouTube.PlayerState.BUFFERING) {
+      socket.emit('playbackChange', playbackState, playerTime)
+    }
+  }
+
+  // Update the player with info received from the server (essentially changes from other clients to the player state)
+  const updatePlayer = (playbackState : YT.PlayerState, playbackTime: number) => {
+    console.log("Received instructions from server")
+    const player = playerReference.current?.internalPlayer
+    player.seekTo(playbackTime, true)
+    if(player.getPlayerState() !== playbackState && player.getPlayerState() != YouTube.PlayerState.BUFFERING) {
+      if(playbackState === YouTube.PlayerState.PAUSED) {
+        player.pauseVideo()
+      }
+      else if(playbackState === YouTube.PlayerState.PLAYING) {
+        player.playVideo()
+      }
+    }
+  }
+
+  // Updates server with the time stamp of the video every 3 seconds
+  const updateTime = async () => {
+    const player = playerReference.current?.internalPlayer
+    if(player === undefined) {
+      return
+    }
+    if(player.getPlayerState() !== YouTube.PlayerState.ENDED) {
+      const time = await player.getCurrentTime()
+      socket.emit('updateTime', time)
+    }
+  }
+  setInterval(updateTime, 3000)
+
   const opts: YouTubeProps['opts'] = {
     height: '390',
     width: '640',
@@ -121,7 +166,7 @@ const Playlist: React.FC = () => {
             </li>
         ))}
       </ul>
-      {currentVideo && <YouTube videoId = {currentVideo} opts = {opts} onReady={onPlayerReady} onEnd={goNext}/>}
+      {currentVideo && <YouTube videoId = {currentVideo} opts = {opts} onEnd={goNext} onStateChange={handlePlaybackChange} ref={playerReference}/>}
     </div>
   )
 
