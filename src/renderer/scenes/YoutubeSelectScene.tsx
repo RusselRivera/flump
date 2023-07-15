@@ -1,12 +1,16 @@
 import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
 import Playlist from './YT_Playlist';
+import { useLocation } from 'react-router-dom';
 import './YoutubeSelectScene.css'
 
 function YT() {
+  const location = useLocation()
+  let lobby_id = location.state.lobby_id
+  let lobby_name = location.state.lobby_name
   return (
     <div>
       <div className='title'>
-        <p> This is the title area! </p>
+        <h1> Lobby Name: {lobby_name} Lobby ID: {lobby_id} </h1>
       </div>
       <div className='player_and_playlist'>
         <Playlist />

@@ -13,16 +13,27 @@
   width: 100%;
   height: 100%;
   /* border: 5px dashed #09ff00; */
-  background-color: #ae00be;
+  background-color: #e31e56;
 }
 
-.button {
-  width: 250px;
+.addVidTitle{
+  font-family: "Lucida Console", Monaco, monospace;
+  color: #ffe868;
+  margin-left: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.add_button {
+  bottom: 0%;
+  width: 15%;
   height: 30px;
-  background-color: color-mix(in srgb, #ff5050 50%, #cc00cc 50%);
+  margin-top: 15px;
+  background-color: #ff8812;
   font-size: 14px;
   font-weight: bold;
-  color: #f0f0f0;
+  color: #ffe868;
+  font-family: "Lucida Console", Monaco, monospace;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -37,8 +48,8 @@
 
 .controls {
   display: flex;
-  gap: 10px;
-  margin-bottom: 10px;
+  gap: 2%;
+  /* border: 5px dashed #eaff02; */
 }
 
 .player {
@@ -57,6 +68,39 @@
   /* border: 5px dashed #eaff02; */
 }
 
+.vid_input{
+  margin-top: 15px;
+  color:#ffe868;
+  font-family: "Lucida Console", Monaco, monospace;
+  font-size: 14px;
+  margin-top: 1%;
+  background-color: color-mix(in srgb, #ff5050 50%, #cc00cc 50%);
+  height: 30px;
+  width: 66%;
+}
+
+.p_controller{
+  width: 100%;
+  height: 50px;
+  background-color: #02012f;
+}
+
+.p_button {
+  bottom: 0%;
+  width: 25%;
+  height: 30px;
+  margin-top: 10px;
+  margin-left: 20px;
+  background-color: #38357ef7;
+  font-size: 14px;
+  font-weight: bold;
+  color: #ff15a5;
+  font-family: "Lucida Console", Monaco, monospace;;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .item {
   background-color: #03004b;
   padding: 5px;
@@ -65,7 +109,7 @@
   border-radius: 10px;
   width: calc(100% - 10px);
   color: #980084;
-  font-family: "Lucida Console", Monaco, monospace;;
+  font-family: "Lucida Console", Monaco, monospace;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

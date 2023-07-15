@@ -195,19 +195,20 @@ const Playlist: React.FC = () => {
 
   return (
     <div className="main_container">
-      <h2> My Playlist </h2>
-
       <div className="controls">
-        <input type = "text" value = {inputValue} onChange = {handleInputChange} />
-        <button className="button" onClick = {handleAddId}> Add Video ID</button>
-        <button className="button" onClick = {goNext}> Skip Video</button>
-        <button className="button" onClick = {handleLoop}> Loop</button>
+        <h3 className='addVidTitle'> Add Video:  </h3>
+        <input type = "text" className='vid_input' value = {inputValue} onChange = {handleInputChange} />
+        <button className="add_button" onClick = {handleAddId}> Add</button>
       </div>
       <div className="sub_container1">
         <div className="player">
-          {currentVideo && <YouTube videoId = {currentVideo} opts = {opts} onEnd={goNext} onStateChange={handlePlaybackChange} onPlaybackRateChange={event => {onRateChange(event)}} ref={playerReference}/>}
+          {currentVideo && <YouTube videoId = {currentVideo} opts = {opts} onReady={handleResize} onEnd={goNext} onStateChange={handlePlaybackChange} onPlaybackRateChange={event => {onRateChange(event)}} ref={playerReference}/>}
         </div>
         <div className="playlist">
+          <div className='p_controller'>
+            <button className="p_button" onClick = {goNext}> Skip</button>
+            <button className="p_button" onClick = {handleLoop}> Loop</button>
+          </div>
           {videolist.map((id,index) => (
             <div key = {index} className="item">
               {videolist[index]}
