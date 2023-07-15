@@ -1,0 +1,72 @@
+/*
+ * @NOTE: Prepend a `~` to css file paths that are in your node_modules
+ *        See https://github.com/webpack-contrib/sass-loader#imports
+ */
+
+
+.main_container {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* border: 5px dashed #09ff00; */
+  background-color: #ae00be;
+}
+
+.button {
+  width: 250px;
+  height: 30px;
+  background-color: color-mix(in srgb, #ff5050 50%, #cc00cc 50%);
+  font-size: 14px;
+  font-weight: bold;
+  color: #f0f0f0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sub_container1 {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  /* border: 5px dashed #ff7402; */
+}
+
+.controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.player {
+  display: flex;
+  flex: 1;
+  background-color: #320051;
+}
+
+.playlist {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 5%;
+  background-color: #02003d;
+  /* border: 5px dashed #eaff02; */
+}
+
+.item {
+  background-color: #03004b;
+  padding: 5px;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  border-radius: 10px;
+  width: calc(100% - 10px);
+  color: #980084;
+  font-family: "Lucida Console", Monaco, monospace;;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

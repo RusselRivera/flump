@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom';
 import axios from 'axios'
 import socket from '../../sockets'
 import { useNavigate } from 'react-router-dom'
+import './YT_Playlist.css';
 
 const Playlist: React.FC = () => {
 
@@ -55,9 +56,11 @@ const Playlist: React.FC = () => {
     socket.on('rateChange', (playbackRate) => {
       changePlayerRate(playbackRate)
     })
+    window.addEventListener('resize', handleResize)
     // IDK bruv
     return () => {
       socket.off('serverResponse')
+      window.removeEventListener('resize', handleResize)
     }
   }, [])
 
@@ -120,6 +123,7 @@ const Playlist: React.FC = () => {
   // When video ends, dequeue and start the next video immediately
   const goNext = () => {
     socket.emit('goNext')
+    console.log(window.outerWidth + " " + window.outerHeight)
   }
   // Event handler for when a client pauses, unpauses, or scrubs the video
   const handlePlaybackChange = (event:  YT.onStateChangeEvent) => {
@@ -172,29 +176,45 @@ const Playlist: React.FC = () => {
   setInterval(updateTime, 1000)
 
   const opts: YouTubeProps['opts'] = {
-    height: '390',
-    width: '640',
+    height: '380',
+    width: '630',
     playerVars: {
       // https://developers.google.com/youtube/player_parameters
       autoplay: 1,
     },
   };
 
+  const handleResize = () => {
+    const player = playerReference.current?.internalPlayer
+    const width_difference = window.outerWidth - 1281
+    const height_difference = window.outerHeight - 700
+    if(player) {
+      player.setSize(630 + width_difference * 0.5, 380 + height_difference * 0.45)
+    }
+  }
+
   return (
-    <div>
+    <div className="main_container">
       <h2> My Playlist </h2>
-      <input type = "text" value = {inputValue} onChange = {handleInputChange} />
-      <button onClick = {handleAddId}> Add Video ID</button>
-      <button onClick = {goNext}> Skip Video</button>
-      <button onClick = {handleLoop}> Loop</button>
-      <ul>
-        {videolist.map((id,index) => (
-          <li key = {index}>
-            {videolist[index]}
-            </li>
-        ))}
-      </ul>
-      {currentVideo && <YouTube videoId = {currentVideo} opts = {opts} onEnd={goNext} onStateChange={handlePlaybackChange} onPlaybackRateChange={event => {onRateChange(event)}} ref={playerReference}/>}
+
+      <div className="controls">
+        <input type = "text" value = {inputValue} onChange = {handleInputChange} />
+        <button className="button" onClick = {handleAddId}> Add Video ID</button>
+        <button className="button" onClick = {goNext}> Skip Video</button>
+        <button className="button" onClick = {handleLoop}> Loop</button>
+      </div>
+      <div className="sub_container1">
+        <div className="player">
+          {currentVideo && <YouTube videoId = {currentVideo} opts = {opts} onEnd={goNext} onStateChange={handlePlaybackChange} onPlaybackRateChange={event => {onRateChange(event)}} ref={playerReference}/>}
+        </div>
+        <div className="playlist">
+          {videolist.map((id,index) => (
+            <div key = {index} className="item">
+              {videolist[index]}
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   )
 

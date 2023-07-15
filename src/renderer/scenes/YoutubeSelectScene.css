@@ -1,0 +1,48 @@
+body {
+  position: relative;
+  color: white;
+  height: 100vh;
+  background: linear-gradient(
+    to bottom,
+    #A4446C 0%,
+    #7603CB 50%,
+    #000F57 100%
+  );
+  font-family: sans-serif;
+  overflow-y: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.title{
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 10%;
+  /* border: 5px dashed #000000; */
+  padding: 15px;
+  background-color: #df8a00;
+}
+
+.player_and_playlist{
+  position: absolute;
+  top: calc(10% + 30px);
+  left: 0;
+  right: 25%;
+  height: 75%;
+  /* border: 5px dashed #ff0000; */
+  padding: 15px;
+}
+
+.chat{
+  position: absolute;
+  top: calc(10% + 30px);
+  left: 75%;
+  right: 0;
+  background-color: #da0062;
+  /* border: 5px dashed #0800ff; */
+  padding: 15px;
+  height: 75%;
+}
