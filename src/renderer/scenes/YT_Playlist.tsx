@@ -209,11 +209,13 @@ const Playlist: React.FC = () => {
             <button className="p_button" onClick = {goNext}> Skip</button>
             <button className="p_button" onClick = {handleLoop}> Loop</button>
           </div>
-          {videolist.map((id,index) => (
-            <div key = {index} className="item">
-              {videolist[index]}
-            </div>
-          ))}
+          <div className='scrollable_container'>
+            {videolist.map((id,index) => (
+              <div key = {index} className="item">
+                {videolist[index]}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

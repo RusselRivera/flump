@@ -1,0 +1,47 @@
+.joinLobby{
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 34%;
+  width: 99%;
+  font-size: 40px;
+  background-color: #3c0052;
+}
+
+.createLobby{
+  position: absolute;
+  top: 35%;
+  left: 0;
+  font-size: 40px;
+  height: 62%;
+  width: 99%;
+  background-color: #000144;
+}
+
+.text_input{
+  height: 30px;
+  width: 70%;
+  font-size: 20px;
+  background-color: #460075;
+  color:#00d0d3;
+  overflow-x: hidden;
+}
+
+.radio_button{
+  width: 30px;
+  height: 30px;
+}
+
+.header{
+  color:#00ca2f
+}
+
+.input{
+  color:#00d0d3
+}
+
+.button{
+  background-color: #000d6e;
+  color:#ffff7a
+}
+
