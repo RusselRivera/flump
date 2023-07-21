@@ -9,7 +9,7 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
-import { app, BrowserWindow, shell, ipcMain } from 'electron';
+import { app, BrowserWindow, shell, ipcMain, desktopCapturer} from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
@@ -25,6 +25,25 @@ class AppUpdater {
 
 ipcMain.on('openExternalLink', async (event, link) => {
   shell.openExternal(link);
+})
+
+// Get video sources for screen share
+ipcMain.on('getVideoSources', async (event) => {
+  console.log("hello")
+  try{
+    const sources = await desktopCapturer.getSources({types: ['window', 'screen']})
+    const result = sources.map((source) => ({
+      id: source.id,
+      name: source.name,
+      appIconUrl: source?.appIcon?.toDataURL(),
+      thumbnailUrl: source?.thumbnail?.toDataURL(),
+    }))
+    event.reply('resulting_sources', result)
+  }
+  catch (error) {
+    console.error('Error getting desktop sources:', error);
+    return [];
+  }
 })
 
 if (process.defaultApp) {

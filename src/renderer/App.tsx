@@ -5,6 +5,7 @@ import ResizableButton from './Button';
 import YT from "./scenes/YoutubeSelectScene"
 import Lobby_YT from "./scenes/YTLobbyCreationScene"
 import Login from "./scenes/LoginScene"
+import ShareScreen from "./scenes/ShareScreen"
 import { useNavigate } from 'react-router-dom'
 import socket from '../sockets'
 import React, { useEffect } from 'react';
@@ -55,6 +56,7 @@ export default function App() {
         <Route path="/YT" element={<YT />} />
         <Route path="/login" element={<Login />} />
         <Route path="/Lobby_YT" element={<Lobby_YT />} />
+        <Route path="/nico" element={<ShareScreen />} />
       </Routes>
     </Router>
   );
