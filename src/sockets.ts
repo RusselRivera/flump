@@ -1,12 +1,6 @@
-import io from 'socket.io-client'
+import { DefaultEventsMap } from '@socket.io/component-emitter';
+import io, { Socket } from 'socket.io-client'
 
-let socket
-let authtoken = window.electron.getToken()
-authtoken.then((token) => {
-    socket = io('http://localhost:35565', {
-        query: {token}
-    })
-    console.log("Token: " + token)
-})
+const socket = io('http://localhost:35565')
 
-export default socket;
+export default socket

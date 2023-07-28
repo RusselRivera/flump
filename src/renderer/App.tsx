@@ -1,4 +1,4 @@
-const socket = require('../sockets');
+import socket from '../sockets';
 import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
 import icon from '../../assets/icon.svg';
 import './App.css';
@@ -12,6 +12,15 @@ import React, { useEffect } from 'react';
 
 function Hello() {
   const navigate = useNavigate();
+
+  
+  useEffect(() => {
+    let authtoken = window.electron.getToken()  
+    authtoken.then((token) => {
+      console.log(token)
+      socket.emit("authenticate", token)
+    })
+  })
 
   const handleButtonClick = () => {
     window.electron.ipcRenderer.sendMessage("openExternalLink", "http://localhost:35565/login");

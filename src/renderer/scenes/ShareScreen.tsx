@@ -1,5 +1,5 @@
-import React, {useState, useEffect, useRef} from 'react'
 import socket from '../../sockets'
+import React, {useState, useEffect, useRef} from 'react'
 import SimplePeer from 'simple-peer'
 import Source from './extra_components/Source'
 import ShareScreenModal from './extra_components/ShareScreenModal'

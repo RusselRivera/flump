@@ -20,12 +20,10 @@ let profile = null;
 let refreshToken = null;
 
 function getAccessToken() {
-  console.log(accessToken)
   return accessToken;
 }
 
 function getProfile() {
-  console.log(profile)
   return profile;
 }
 
