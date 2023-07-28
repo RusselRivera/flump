@@ -14,6 +14,10 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+import { createFactory } from 'react';
+
+const authService = require('../services/auth-service');
+const apiService = require('../services/api-service');
 
 class AppUpdater {
   constructor() {
@@ -148,6 +152,74 @@ const createWindow = async () => {
   new AppUpdater();
 };
 
+let authWin = null;
+
+function createAuthWindow() {
+  destroyAuthWin();
+
+  authWin = new BrowserWindow({
+    width: 1000,
+    height: 600,
+    webPreferences: {
+      nodeIntegration: false,
+      enableRemoteModule: false
+    }
+  });
+
+  authWin.loadURL(authService.getAuthenticationURL());
+
+  const {session: {webRequest}} = authWin.webContents;
+
+  const filter = {
+    urls: [
+      'http://localhost/callback*'
+    ]
+  };
+
+  webRequest.onBeforeRequest(filter, async ({url}) => {
+    await authService.loadTokens(url);
+    await createWindow();
+    return destroyAuthWin();
+  });
+
+  authWin.on('authenticated', () => {
+    destroyAuthWin();
+  });
+
+  authWin.on('closed', () => {
+    authWin = null;
+  });
+}
+
+function destroyAuthWin() {
+  if (!authWin) return;
+  authWin.close();
+  authWin = null;
+}
+
+function createLogoutWindow() {
+  const logoutWindow = new BrowserWindow({
+    show: false,
+  });
+
+  logoutWindow.loadURL(authService.getLogOutUrl());
+
+  logoutWindow.on('ready-to-show', async () => {
+    await authService.logout();
+    logoutWindow.close();
+  });
+}
+
+
+async function showWindow() {
+  try {
+    await authService.refreshTokens();
+    createWindow();
+  } catch (err) {
+    createAuthWindow();
+  }
+}
+
 /**
  * Add event listeners...
  */
@@ -163,30 +235,29 @@ app.on('window-all-closed', () => {
 const lock = app.requestSingleInstanceLock()
 let login_data
 
-// if (!lock) {
-//   app.quit()
-// } else {
-//   app.on('second-instance', (event, commandLine, workingDirectory) => {
-//     // Someone tried to run a second instance, we should focus our window.
-//     if (mainWindow) {
-//       if (mainWindow.isMinimized()) mainWindow.restore()
-//       mainWindow.focus()
-//       login_data = commandLine.pop()?.slice(0, -1)
-//       mainWindow.webContents.send("login-data", login_data)
-//     }
-//   })
+app.whenReady().then(() => {
+  ipcMain.handle('auth:get-profile', authService.getProfile);
+  ipcMain.handle('auth:get-token', authService.getAccessToken);
+  ipcMain.handle('api:get-private-data', apiService.getPrivateData);
+  ipcMain.on('auth:log-out', () => {
+    BrowserWindow.getAllWindows().forEach(window => window.close());
+    createLogoutWindow();
+    createAuthWindow();
+  });
 
-  app.whenReady().then(() => {
-    createWindow();
-    app.on('activate', () => {
-      // On macOS it's common to re-create a window in the app when the
-      // dock icon is clicked and there are no other windows open.
-      if (mainWindow === null) createWindow();
-    });
-  }).catch(console.log);
+  showWindow();
+  app.on('activate', () => {
+    // On macOS it's common to re-create a window in the app when the
+    // dock icon is clicked and there are no other windows open.
+    if (mainWindow === null) showWindow();
+  });
+}).catch(console.log);
 
-  app.on('open-url', (event, url) => {
-    if (mainWindow)
-      mainWindow.webContents.send("login-data", url)
-  })
-// }
+app.on('open-url', (event, url) => {
+  if (mainWindow)
+    mainWindow.webContents.send("login-data", url)
+})
+
+module.exports = {
+  createWindow,
+}
