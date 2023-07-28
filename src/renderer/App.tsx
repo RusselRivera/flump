@@ -1,3 +1,4 @@
+const socket = require('../sockets');
 import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
 import icon from '../../assets/icon.svg';
 import './App.css';
@@ -7,20 +8,17 @@ import Lobby_YT from "./scenes/YTLobbyCreationScene"
 import Login from "./scenes/LoginScene"
 import ShareScreen from "./scenes/ShareScreen"
 import { useNavigate } from 'react-router-dom'
-import socket from '../sockets'
 import React, { useEffect } from 'react';
 
 function Hello() {
   const navigate = useNavigate();
 
-  useEffect(() => {
-    window.electron.ipcRenderer.on('login-data', (message: string) => {
-      console.log(message.substring(message.indexOf("?data=") + "?data=".length));
-    });
-  }, []);
-
   const handleButtonClick = () => {
     window.electron.ipcRenderer.sendMessage("openExternalLink", "http://localhost:35565/login");
+  }
+
+  const logOut = () => {
+    window.electron.logOut();
   }
 
   return (
@@ -30,6 +28,7 @@ function Hello() {
       </div>
       <h1>electron-react-boilerplate</h1>
       <button id = "login-button" onClick = {handleButtonClick}></button>
+      <button id = "login-button" onClick = {logOut}>Logout</button>
       <div className="Hello" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gridGap: 20 }}>
         <div>
           <ResizableButton id = "youtube" />
