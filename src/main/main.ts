@@ -27,6 +27,10 @@ ipcMain.on('openExternalLink', async (event, link) => {
   shell.openExternal(link);
 })
 
+ipcMain.on('log', (message) => {
+  console.log(message)
+})
+
 // Get video sources for screen share
 ipcMain.on('getVideoSources', async (event) => {
   console.log("hello")
@@ -101,6 +105,7 @@ const createWindow = async () => {
     icon: getAssetPath('icon.png'),
     webPreferences: {
       // Temp disable CORS
+      nodeIntegration: true,
       webSecurity: false,
       preload: app.isPackaged
         ? path.join(__dirname, 'preload.js')

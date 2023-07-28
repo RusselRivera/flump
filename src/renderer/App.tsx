@@ -7,7 +7,6 @@ import Lobby_YT from "./scenes/YTLobbyCreationScene"
 import Login from "./scenes/LoginScene"
 import ShareScreen from "./scenes/ShareScreen"
 import { useNavigate } from 'react-router-dom'
-import socket from '../sockets'
 import React, { useEffect } from 'react';
 
 function Hello() {
