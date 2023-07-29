@@ -181,6 +181,7 @@ const ScreenShare: React.FC = () => {
       console.log("Connection has been lost")
       peer.removeAllListeners()
       peer.destroy()
+      setPeers([])
     })
     peer.on('connect', () => {
       // Connection is fully established
