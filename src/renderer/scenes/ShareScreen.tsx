@@ -17,8 +17,7 @@ const ScreenShare: React.FC = () => {
   // Reference for the video player
   const videoRef = useRef<HTMLVideoElement | null>(null)
   // List of peers (only the initiator / streamer will have more than one)
-  const peers : SimplePeer.Instance[] = []
-  let flag = true;
+  const [peers, setPeers] = useState<SimplePeer.Instance[]>([])
 
   socket.emit('connectSS', socket.id)
 
@@ -26,13 +25,15 @@ const ScreenShare: React.FC = () => {
   const closeModal = () => setModalOpen(false)
 
   useEffect(() => {
-    if(selectedStream && videoRef.current) {
+    // If the selectedStream is updated, this code will run only if videoRef.current is valid, and no stream is already playing (.srcObject === null)
+    if(selectedStream && videoRef.current && videoRef.current.srcObject === null) {
       videoRef.current.srcObject = selectedStream
       if(isSharing === 1) {
         socket.emit('initiateSharing', socket.id)
       }
     }
 
+    // Server sends this in the case that a client joins after peer-peer connections are already formed
     socket.on('startConnection', (receiver_id) => {
       initiateSharing(receiver_id)
     })
@@ -42,17 +43,22 @@ const ScreenShare: React.FC = () => {
     })
     // Answer is sent to the initiator
     socket.on('answer', (data) => {
-        handleAnswer(data)
+      handleAnswer(data)
     })
     // Clean up after stream ends
     socket.on('shareEnded', () => {
       handleShareEnded()
     })
 
+    // Clean up socket listeners whenever component unmounts
     return () => {
       socket.removeAllListeners()
     }
-  }, [selectedStream])
+
+    // Component will re-render any time "selectedStream" or "peers" is changed
+    // selectedStream: Should only change when either the initiator begins a stream, or a receiver connects to a stream
+    // peers: Should only change whenever a new peer is created and added
+  }, [selectedStream, peers])
 
 
   const handleShareEnded = () => {
@@ -64,11 +70,14 @@ const ScreenShare: React.FC = () => {
 
   const cleanup = () => {
     socket.removeAllListeners()
-    while(peers.length !== 0) {
-      const peer = peers.pop()
+    const temp = peers;
+    while(temp.length > 0) {
+      console.log("destroying peer")
+      const peer = temp.pop()
       peer?.removeAllListeners()
       peer?.destroy()
     }
+    setPeers([])
     setIsSharing(0)
     socketRestart()
   }
@@ -127,19 +136,24 @@ const ScreenShare: React.FC = () => {
     console.log("peer created!")
     if(init) {
       const newPeerInstance = new SimplePeer({initiator: true, stream: selectedStream})
-      peers.push(newPeerInstance)
+      setPeers((newPeers) => [...newPeers, newPeerInstance])
+      return newPeerInstance
     }
     else {
       const newPeerInstance = new SimplePeer()
-      peers.push(newPeerInstance)
+      setPeers((newPeers) => [...newPeers, newPeerInstance])
+      console.log(peers)
+      return newPeerInstance
     }
   }
 
-  const initiateSharing = (receiver_id : string) => {
-      createPeer(true)
-      attachInitiatorEvents(peers[peers.length-1], receiver_id)
+  const initiateSharing = async (receiver_id : string) => {
+      const newPeer = await createPeer(true)
+      attachInitiatorEvents(newPeer, receiver_id)
   }
 
+
+  // Events that are associated with the initiator
   const attachInitiatorEvents = (peer : SimplePeer.Instance, receiver_id : string) => {
     peer.on('signal', (data) => {
       // Socket to send offer to receiver
@@ -147,7 +161,13 @@ const ScreenShare: React.FC = () => {
       socket.emit('offer', data, receiver_id)
     })
     peer.on('close', () => {
-      // Code to run when connection is closed
+      // Code to run when connection is closed by a receiver
+      console.log("A receiver has closed a connection")
+      // Update the list of peers to remove the broken peer connections
+      setPeers((prevPeers) => prevPeers.filter((p) => p !== peer));
+      // Fully close said broken peer connections
+      peer.removeAllListeners()
+      peer.destroy()
     })
   }
 
@@ -158,6 +178,9 @@ const ScreenShare: React.FC = () => {
     })
     peer.on('close', () => {
       // Code to run when connection is closed
+      console.log("Connection has been lost")
+      peer.removeAllListeners()
+      peer.destroy()
     })
     peer.on('connect', () => {
       // Connection is fully established
@@ -175,9 +198,9 @@ const ScreenShare: React.FC = () => {
     if(isSharing === 0) {
       // Create a new peer to handle the received data only if no peers exist
       if(peers.length === 0) {
-        await createPeer(false)
-        attachReceiverEvents(peers[0])
-        peers[0].signal(data)
+        const newPeer = await createPeer(false)
+        attachReceiverEvents(newPeer)
+        newPeer.signal(data)
       }
       // Receiving peer exists, signal with the offer
       else {
@@ -195,7 +218,6 @@ const ScreenShare: React.FC = () => {
   const printStuff = () => {
     console.log(peers)
     console.log(peers.length)
-    console.log(flag)
   }
 
   return (

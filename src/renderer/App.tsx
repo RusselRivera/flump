@@ -13,9 +13,9 @@ import React, { useEffect } from 'react';
 function Hello() {
   const navigate = useNavigate();
 
-  
+
   useEffect(() => {
-    let authtoken = window.electron.getToken()  
+    let authtoken = window.electron.getToken()
     authtoken.then((token) => {
       console.log(token)
       socket.emit("authenticate", token)
