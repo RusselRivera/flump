@@ -16,7 +16,7 @@ function Lobby_YT() {
   }, []);
 
   // Server will send 'lobbyJoin' to have the client join a lobby
-  socket.on('joinLobby', (lobby_id) => {
+  socket.on('theater:pushLobbyScene', (lobby_id) => {
     navigate("/YT", {
       state: {
         lobby_id: lobby_id,
@@ -25,13 +25,13 @@ function Lobby_YT() {
   })
 
   // Server will send 'noLobby' if the lobby id given is not valid
-  socket.on('noLobby', () => {
+  socket.on('theater:noLobby', () => {
     let response = document.getElementById('lobby-id-response') as HTMLSpanElement
     response.innerText = "Lobby not found"
   })
 
   // Server will send 'noPassword' if the lobby password given is not valid
-  socket.on('noPassword', () => {
+  socket.on('theater:noPassword', () => {
     let response = document.getElementById('lobby-password-response')  as HTMLSpanElement
     response.innerText = "Incorrect password"
   })
@@ -42,7 +42,7 @@ function Lobby_YT() {
     let lobby_id = id_input.value;
     let lobby_password = password_input.value;
 
-    socket.emit('checkLobby', lobby_id, lobby_password)
+    socket.emit('theater:checkLobby', lobby_id, lobby_password)
   }
 
   const createLobbyButton = () => {
@@ -63,7 +63,7 @@ function Lobby_YT() {
       }
     }
 
-    socket.emit('createLobby', name, privacy, description, password)
+    socket.emit('theater:createLobby', name, privacy, description, password)
   }
 
   return (

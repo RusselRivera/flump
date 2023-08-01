@@ -19,7 +19,7 @@ const ScreenShare: React.FC = () => {
   // List of peers (only the initiator / streamer will have more than one)
   const [peers, setPeers] = useState<SimplePeer.Instance[]>([])
 
-  socket.emit('connectSS', socket.id)
+  socket.emit('share:connect', socket.id)
 
   const openModal = () => setModalOpen(true)
   const closeModal = () => setModalOpen(false)
@@ -29,24 +29,24 @@ const ScreenShare: React.FC = () => {
     if(selectedStream && videoRef.current && videoRef.current.srcObject === null) {
       videoRef.current.srcObject = selectedStream
       if(isSharing === 1) {
-        socket.emit('initiateSharing', socket.id)
+        socket.emit('share:initiateSharing', socket.id)
       }
     }
 
     // Server sends this in the case that a client joins after peer-peer connections are already formed
-    socket.on('startConnection', (receiver_id) => {
+    socket.on('share:startConnection', (receiver_id) => {
       initiateSharing(receiver_id)
     })
     // Offer is sent to receivers
-    socket.on('offer', (data) => {
+    socket.on('share:offer', (data) => {
       handleOffer(data)
     })
     // Answer is sent to the initiator
-    socket.on('answer', (data) => {
+    socket.on('share:answer', (data) => {
       handleAnswer(data)
     })
     // Clean up after stream ends
-    socket.on('shareEnded', () => {
+    socket.on('share:shareEnded', () => {
       handleShareEnded()
     })
 
@@ -83,10 +83,10 @@ const ScreenShare: React.FC = () => {
   }
 
   const socketRestart = () => {
-    socket.on('answer', (data) => handleAnswer(data))
-    socket.on('offer', (data) => handleOffer(data))
-    socket.on('shareEnded', () => handleShareEnded())
-    socket.on('startConnection', (receiver_id) => initiateSharing(receiver_id))
+    socket.on('share:answer', (data) => handleAnswer(data))
+    socket.on('share:offer', (data) => handleOffer(data))
+    socket.on('share:shareEnded', () => handleShareEnded())
+    socket.on('share:startConnection', (receiver_id) => initiateSharing(receiver_id))
   }
 
   const handleSourceSelect = async (source : Source) => {
@@ -126,7 +126,7 @@ const ScreenShare: React.FC = () => {
 
   const stopSharing = () => {
     selectedStream?.getTracks().forEach(track => track.stop())
-    socket.emit('shareEnded')
+    socket.emit('share:shareEnded')
     setSelectedStream(undefined)
     setIsSharing(0)
   }
@@ -158,7 +158,7 @@ const ScreenShare: React.FC = () => {
     peer.on('signal', (data) => {
       // Socket to send offer to receiver
       console.log("emitting offer to", receiver_id)
-      socket.emit('offer', data, receiver_id)
+      socket.emit('share:offer', data, receiver_id)
     })
     peer.on('close', () => {
       // Code to run when connection is closed by a receiver
@@ -174,7 +174,7 @@ const ScreenShare: React.FC = () => {
   const attachReceiverEvents = (peer : SimplePeer.Instance) => {
     peer.on('signal', (data) => {
       // Socket to send answer to initiator
-      socket.emit('answer', data)
+      socket.emit('share:answer', data)
     })
     peer.on('close', () => {
       // Code to run when connection is closed
@@ -187,7 +187,7 @@ const ScreenShare: React.FC = () => {
       // Connection is fully established
       console.log("Connection fully established!")
       setIsSharing(2)
-      socket.emit('nextConnection')
+      socket.emit('share:nextConnection')
     })
     peer.on('stream', (stream) => {
       // Code to set the stream of the receiver to that of the initiator

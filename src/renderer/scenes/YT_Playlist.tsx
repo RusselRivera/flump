@@ -31,9 +31,9 @@ const Playlist: React.FC = () => {
 
     console.log("joining lobby " + lobby_id)
 
-    socket.emit('lobbyJoin')
+    socket.emit('theater:joinLobby')
     // When the server responds to the client with what video to play
-    socket.on('playVideo', (vid_url) => {
+    socket.on('theater:playVideo', (vid_url) => {
       console.log("Received video to play:", vid_url)
       handlePlayVideo(vid_url)
     })
@@ -45,15 +45,15 @@ const Playlist: React.FC = () => {
       })
     })
     // When the server tells the client that the playlist has been updated, re-render the list of videos queued
-    socket.on('updatePlaylist', (videos) => {
+    socket.on('theater:updatePlaylist', (videos) => {
       console.log("Update Playlist Request Received")
       updatePlaylist(videos)
     })
     // Server broadcasting playback changes
-    socket.on('receiveInfo', (playbackState, playbackTime) => {
+    socket.on('theater:receiveInfo', (playbackState, playbackTime) => {
       updatePlayer(playbackState, playbackTime)
     })
-    socket.on('rateChange', (playbackRate) => {
+    socket.on('theater:rateChange', (playbackRate) => {
       changePlayerRate(playbackRate)
     })
     window.addEventListener('resize', handleResize)
@@ -65,7 +65,7 @@ const Playlist: React.FC = () => {
   }, [])
 
   const handleLoop = () => {
-    socket.emit('toggleLoop')
+    socket.emit('theater:toggleLoop')
   }
   // Detects input event and updates
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -82,7 +82,7 @@ const Playlist: React.FC = () => {
 
     // As long as Video ID isn't undefined...
     if(vid_id !== null) {
-      socket.emit('addVideo', vid_id)
+      socket.emit('theater:addVideo', vid_id)
       setInputValue('')
     }
     else {
@@ -122,7 +122,7 @@ const Playlist: React.FC = () => {
   }
   // When video ends, dequeue and start the next video immediately
   const goNext = () => {
-    socket.emit('goNext')
+    socket.emit('theater:goNext')
     console.log(window.outerWidth + " " + window.outerHeight)
   }
   // Event handler for when a client pauses, unpauses, or scrubs the video
@@ -132,7 +132,7 @@ const Playlist: React.FC = () => {
     const playerTime = player.getCurrentTime()
     console.log("Player State Changed:", playbackState)
     if(playbackState != YouTube.PlayerState.BUFFERING) {
-      socket.emit('playbackChange', playbackState, playerTime)
+      socket.emit('theater:playbackChange', playbackState, playerTime)
     }
   }
 
@@ -153,7 +153,7 @@ const Playlist: React.FC = () => {
 
   // Playback Rate is changed
   const onRateChange = (event : YT.YouTubeEvent<number>) => {
-    socket.emit('playbackRateChange', event.target.getPlaybackRate())
+    socket.emit('theater:playbackRateChange', event.target.getPlaybackRate())
   }
 
   // Change the player rate
@@ -170,7 +170,7 @@ const Playlist: React.FC = () => {
     }
     if(player.getPlayerState() !== YouTube.PlayerState.ENDED) {
       const time = await player.getCurrentTime()
-      socket.emit('updateTime', time)
+      socket.emit('theater:updateTime', time)
     }
   }
   setInterval(updateTime, 1000)
