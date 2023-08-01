@@ -95,7 +95,13 @@ const ScreenShare: React.FC = () => {
     console.log(source.name);
     try{
       const stream = await (navigator.mediaDevices as any).getUserMedia({
-        audio: false,
+        // Bug: grabs audio from entire desktop rather than just the source
+        audio: {
+          mandatory: {
+            chromeMediaSource: 'desktop',
+            chromeMediaSourceId: source.id,
+          }
+        },
         video: {
           mandatory: {
             chromeMediaSource: 'desktop',
@@ -226,7 +232,7 @@ const ScreenShare: React.FC = () => {
       {isSharing === 0 && (<button onClick={chooseScreen}>Share Screen</button>)}
       {isSharing === 1 && (<button onClick={stopSharing}>Stop Sharing</button>)}
       <ShareScreenModal isOpen={isModalOpen} closeModal={closeModal} sources={sources} handleSourceSelect={handleSourceSelect} />
-      {selectedStream && <video ref={videoRef} autoPlay></video>}
+      {selectedStream && <video ref={videoRef} autoPlay muted={isSharing === 1 && true}></video>}
       {isSharing === 2 && <button onClick = {handleShareEnded}> Disconnect from Stream </button>}
       <button onClick={printStuff}> Get Info </button>
     </div>
