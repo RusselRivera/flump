@@ -24,7 +24,7 @@ const ResizableButton: React.FC<Props> = (props) => {
         }
         case "twitch": {
             pic = pic_twitch
-            link = "/twitch"
+            link = "/Lobby_YT"
            break
         }
         case "spotify": {

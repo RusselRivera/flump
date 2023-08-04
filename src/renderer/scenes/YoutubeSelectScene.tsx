@@ -1,7 +1,7 @@
 import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
 import Playlist from './YT_Playlist';
 import { useLocation } from 'react-router-dom';
-import './YoutubeSelectScene.css'
+import './css/YoutubeSelectScene.css'
 
 function YT() {
   const location = useLocation()

@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom';
 import axios from 'axios'
 import socket from '../../sockets'
 import { useNavigate } from 'react-router-dom'
-import './YT_Playlist.css';
+import './css/YT_Playlist.css';
 
 const Playlist: React.FC = () => {
 

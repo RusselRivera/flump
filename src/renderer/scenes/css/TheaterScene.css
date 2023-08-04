@@ -1,0 +1,21 @@
+.sidebarButton{
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 9998;
+}
+
+.sidebar{
+  position: absolute;
+  top: 0;
+  left: -310px;
+  width: 300px;
+  height: 100%;
+  z-index: 9999;
+  background-color: #f0f0f0;
+  transition: left 0.3s ease;
+}
+
+.sidebar.open{
+  left: 0;
+}

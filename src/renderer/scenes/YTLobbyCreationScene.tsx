@@ -2,8 +2,9 @@ import socket from '../../sockets'
 import { useNavigate } from 'react-router-dom'
 import React, { useEffect } from 'react';
 import YT from "./YoutubeSelectScene"
+import Theater from "./TheaterScene"
 import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
-import './YTLobbyCreationScene.css'
+import './css/YTLobbyCreationScene.css'
 
 function Lobby_YT() {
 
@@ -17,7 +18,7 @@ function Lobby_YT() {
 
   // Server will send 'lobbyJoin' to have the client join a lobby
   socket.on('theater:pushLobbyScene', (lobby_id) => {
-    navigate("/YT", {
+    navigate("/theater", {
       state: {
         lobby_id: lobby_id,
       }
