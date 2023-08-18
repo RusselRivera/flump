@@ -1,5 +1,6 @@
 import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
 import Playlist from './YT_Playlist';
+import Chat from './Chat';
 import { useLocation } from 'react-router-dom';
 import './css/YoutubeSelectScene.css'
 
@@ -16,7 +17,7 @@ function YT() {
         <Playlist />
       </div>
       <div className='chat'>
-        <p> This is the chat area! </p>
+        <Chat />
       </div>
     </div>
   );
