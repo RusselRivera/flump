@@ -27,11 +27,12 @@ const Playlist: React.FC = () => {
     // When the client connects back to the server, retrieve the video currently being played and update the playlist
     let lobby_id = location.state.lobby_id
 
-    console.log(lobby_id)
-
     console.log("joining lobby " + lobby_id)
 
-    socket.emit('theater:joinLobby')
+    if(videolist.length === 0) {
+      socket.emit('theater:joinLobby')
+    }
+
     // When the server responds to the client with what video to play
     socket.on('theater:playVideo', (vid_url) => {
       console.log("Received video to play:", vid_url)
@@ -59,7 +60,7 @@ const Playlist: React.FC = () => {
     window.addEventListener('resize', handleResize)
     // IDK bruv
     return () => {
-      socket.off('serverResponse')
+      socket.removeAllListeners
       window.removeEventListener('resize', handleResize)
     }
   }, [])
@@ -140,13 +141,15 @@ const Playlist: React.FC = () => {
   const updatePlayer = (playbackState : YT.PlayerState, playbackTime: number) => {
     console.log("Received instructions from server")
     const player = playerReference.current?.internalPlayer
-    player.seekTo(playbackTime, true)
-    if(player.getPlayerState() !== playbackState && player.getPlayerState() != YouTube.PlayerState.BUFFERING) {
-      if(playbackState === YouTube.PlayerState.PAUSED) {
-        player.pauseVideo()
-      }
-      else if(playbackState === YouTube.PlayerState.PLAYING) {
-        player.playVideo()
+    if(player) {
+      player.seekTo(playbackTime, true)
+      if(player.getPlayerState() !== playbackState && player.getPlayerState() != YouTube.PlayerState.BUFFERING) {
+        if(playbackState === YouTube.PlayerState.PAUSED) {
+          player.pauseVideo()
+        }
+        else if(playbackState === YouTube.PlayerState.PLAYING) {
+          player.playVideo()
+        }
       }
     }
   }

@@ -34,13 +34,13 @@ body {
   text-overflow: ellipsis;
 }
 
-.player_and_playlist{
+.streamPlayer{
   position: absolute;
   top: calc(10% + 30px);
   left: 0;
   right: 25%;
-  height: 75%;
-  /* border: 5px dashed #ff0000; */
+  height: 65%;
+  border: 5px dashed green;
   padding: 15px;
 }
 
@@ -55,4 +55,13 @@ body {
   /* border: 5px dashed #0800ff; */
   padding: 15px;
   height: 75%;
+}
+
+.controls{
+  position: absolute;
+  border: 5px dashed pink;
+  top: calc(80% + 20px);
+  left: 0;
+  right: 25%;
+  height: 8%;
 }

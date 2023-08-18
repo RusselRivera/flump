@@ -3,7 +3,9 @@ import React, {useState, useEffect, useRef} from 'react'
 import SimplePeer from 'simple-peer'
 import Source from './extra_components/Source'
 import ShareScreenModal from './extra_components/ShareScreenModal'
+import { useLocation } from 'react-router-dom';
 import { ipcRenderer } from 'electron'
+import './css/ShareScreen.css';
 
 const ScreenShare: React.FC = () => {
   // Variable containing the different screen / application sources to display
@@ -18,6 +20,10 @@ const ScreenShare: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null)
   // List of peers (only the initiator / streamer will have more than one)
   const [peers, setPeers] = useState<SimplePeer.Instance[]>([])
+
+  const location = useLocation()
+  let lobby_id = location.state.lobby_id
+  let lobby_name = location.state.lobby_name
 
   socket.emit('share:connect', socket.id)
 
@@ -222,19 +228,29 @@ const ScreenShare: React.FC = () => {
     }
   }
 
-  const printStuff = () => {
-    console.log(peers)
-    console.log(peers.length)
-  }
+  // const printStuff = () => {
+  //   console.log(peers)
+  //   console.log(peers.length)
+  // }
 
   return (
     <div>
-      {isSharing === 0 && (<button onClick={chooseScreen}>Share Screen</button>)}
-      {isSharing === 1 && (<button onClick={stopSharing}>Stop Sharing</button>)}
-      <ShareScreenModal isOpen={isModalOpen} closeModal={closeModal} sources={sources} handleSourceSelect={handleSourceSelect} />
-      {selectedStream && <video ref={videoRef} autoPlay muted={isSharing === 1 && true}></video>}
-      {isSharing === 2 && <button onClick = {handleShareEnded}> Disconnect from Stream </button>}
-      <button onClick={printStuff}> Get Info </button>
+      <div className='title'>
+        <h1> Lobby Name: {lobby_name} Lobby ID: {lobby_id} </h1>
+      </div>
+      <div className='streamPlayer'>
+        {selectedStream && <video ref={videoRef} autoPlay muted={isSharing === 1 && true}></video>}
+      </div>
+      <div className='controls'>
+          {isSharing === 0 && (<button onClick={chooseScreen}>Share Screen</button>)}
+          {isSharing === 1 && (<button onClick={stopSharing}>Stop Sharing</button>)}
+          <ShareScreenModal isOpen={isModalOpen} closeModal={closeModal} sources={sources} handleSourceSelect={handleSourceSelect} />
+          {isSharing === 2 && <button onClick = {handleShareEnded}> Disconnect from Stream </button>}
+          {/* <button onClick={printStuff}> Get Info </button> */}
+      </div>
+      <div className='chat'>
+        <p> This is the chat area! </p>
+      </div>
     </div>
   )
 }
