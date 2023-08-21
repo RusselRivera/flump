@@ -241,7 +241,7 @@ const ScreenShare: React.FC = () => {
       <div className='streamPlayer'>
         {selectedStream && <video ref={videoRef} autoPlay muted={isSharing === 1 && true}></video>}
       </div>
-      <div className='controls'>
+      <div className='ss_controls'>
           {isSharing === 0 && (<button onClick={chooseScreen}>Share Screen</button>)}
           {isSharing === 1 && (<button onClick={stopSharing}>Stop Sharing</button>)}
           <ShareScreenModal isOpen={isModalOpen} closeModal={closeModal} sources={sources} handleSourceSelect={handleSourceSelect} />

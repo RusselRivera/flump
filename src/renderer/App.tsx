@@ -10,16 +10,21 @@ import ShareScreen from "./scenes/ShareScreen"
 import Theater from "./scenes/TheaterScene"
 import { useNavigate } from 'react-router-dom'
 import React, { useEffect } from 'react';
+import sessionInfo from './scenes/extra_components/SessionInfo';
 
 function Hello() {
   const navigate = useNavigate();
-
 
   useEffect(() => {
     let authtoken = window.electron.getToken()
     authtoken.then((token) => {
       console.log(token)
       socket.emit("authenticate", token)
+    })
+    // Obtain profile information when available (signalled by server)
+    socket.on('session:obtainInfo', (username, auth_id, color, email, bio, numlobbies) => {
+      sessionInfo.changeInfo(auth_id, socket.id, username, color, email, bio, numlobbies)
+      console.log('Username: ' + sessionInfo.username + '\nAuthentication ID: ' + sessionInfo.auth_id + '\nSocket ID: ' + sessionInfo.socket_id + '\nColor: ' + sessionInfo.color)
     })
   })
 

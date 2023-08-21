@@ -57,7 +57,7 @@ body {
   height: 75%;
 }
 
-.controls{
+.ss_controls{
   position: absolute;
   border: 5px dashed pink;
   top: calc(80% + 20px);
