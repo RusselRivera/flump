@@ -73,7 +73,7 @@ const Playlist: React.FC = () => {
     setInputValue(event.target.value);
   }
   // Allows the client to add a video to the playlist via video ID: appends the video the end of the lsit
-  const handleAddId = () => {
+  const handleAddId = async () => {
     // Take URL and obtain the Video ID from it - Make sure that it's not undefined
     if(inputValue.trim() == '') {
       return
@@ -83,6 +83,10 @@ const Playlist: React.FC = () => {
 
     // As long as Video ID isn't undefined...
     if(vid_id !== null) {
+      // Check link validity by trying to obtain a video title with youtube api
+      if(await getTitle(vid_id) === false) {
+        return
+      }
       socket.emit('theater:addVideo', vid_id)
       setInputValue('')
     }
@@ -116,9 +120,11 @@ const Playlist: React.FC = () => {
       const video_title = response.data.items[0].snippet.title
       console.log("Video title found:", video_title)
       setVideolist((prevVideolist) => [...prevVideolist, video_title])
+      return true
     }
     catch (error) {
       console.log('Error in retrieving title information:', error)
+      return false
     }
   }
   // When video ends, dequeue and start the next video immediately
