@@ -52,13 +52,13 @@ function Lobby_YT() {
     let privacy_input = document.getElementsByName('create-lobby-privacy')
     let description_input = document.getElementById('create-lobby-description') as HTMLInputElement
     let password_input = document.getElementById('create-lobby-password') as HTMLInputElement
-    let persistance_input = document.getElementsByName('create-lobby-persistance')
+    let persistence_input = document.getElementsByName('create-lobby-persistence')
 
     let name = name_input.value
     let privacy
     let description = description_input.value
     let password = password_input.value
-    let persistance
+    let persistence
 
     for (let i = 0; i < privacy_input.length; i++) {
       let radio_button = privacy_input[i] as HTMLInputElement
@@ -67,14 +67,22 @@ function Lobby_YT() {
       }
     }
 
-    for(let i = 0; i < persistance_input.length; i++) {
-      let radio_button = persistance_input[i] as HTMLInputElement
+    for(let i = 0; i < persistence_input.length; i++) {
+      let radio_button = persistence_input[i] as HTMLInputElement
       if(radio_button.checked == true) {
-        persistance = radio_button.value
+        persistence = radio_button.value
       }
     }
 
-    socket.emit('theater:createLobby', name, privacy, description, password, persistance, sessionInfo.auth_id)
+    // Decrement the number of persistent lobbies the user can create by one
+    if(persistence === 'yes' && sessionInfo.numPersistantLobbies > 0) {
+      sessionInfo.numPersistantLobbies--
+    }
+    else {
+      persistence = 'no'
+    }
+
+    socket.emit('theater:createLobby', name, privacy, description, password, persistence, sessionInfo.auth_id)
   }
 
   return (
@@ -106,8 +114,8 @@ function Lobby_YT() {
         </div>
         <div className='input'>
           Persistant:
-            Yes <input className='radio_button' type="radio" name="create-lobby-persistance" value="yes" />
-            No <input className='radio_button' type="radio" name="create-lobby-persistance" value="no" defaultChecked />
+            Yes <input className='radio_button' type="radio" name="create-lobby-persistence" value="yes" />
+            No <input className='radio_button' type="radio" name="create-lobby-persistence" value="no" defaultChecked />
         </div>
         <div className='input'>
           Description: <input className='text_input' id = "create-lobby-description" />
