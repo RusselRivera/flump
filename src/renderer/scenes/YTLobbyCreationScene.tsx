@@ -5,6 +5,7 @@ import YT from "./YoutubeSelectScene"
 import Theater from "./TheaterScene"
 import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
 import './css/YTLobbyCreationScene.css'
+import sessionInfo from './extra_components/SessionInfo'
 
 function Lobby_YT() {
 
@@ -51,11 +52,13 @@ function Lobby_YT() {
     let privacy_input = document.getElementsByName('create-lobby-privacy')
     let description_input = document.getElementById('create-lobby-description') as HTMLInputElement
     let password_input = document.getElementById('create-lobby-password') as HTMLInputElement
+    let persistence_input = document.getElementsByName('create-lobby-persistence')
 
     let name = name_input.value
     let privacy
     let description = description_input.value
     let password = password_input.value
+    let persistence
 
     for (let i = 0; i < privacy_input.length; i++) {
       let radio_button = privacy_input[i] as HTMLInputElement
@@ -64,7 +67,22 @@ function Lobby_YT() {
       }
     }
 
-    socket.emit('theater:createLobby', name, privacy, description, password)
+    for(let i = 0; i < persistence_input.length; i++) {
+      let radio_button = persistence_input[i] as HTMLInputElement
+      if(radio_button.checked == true) {
+        persistence = radio_button.value
+      }
+    }
+
+    // Decrement the number of persistent lobbies the user can create by one
+    if(persistence === 'yes' && sessionInfo.numPersistantLobbies > 0) {
+      sessionInfo.numPersistantLobbies--
+    }
+    else {
+      persistence = 'no'
+    }
+
+    socket.emit('theater:createLobby', name, privacy, description, password, persistence, sessionInfo.auth_id)
   }
     
   const goHome = () => {
@@ -98,9 +116,14 @@ function Lobby_YT() {
           Lobby Name: <input className='text_input' id = "create-lobby-name" />
         </div>
         <div className='input'>
-          Private: <input className='radio_button' type="radio" name="create-lobby-privacy" value="yes" checked />
-            Yes<input className='radio_button' type="radio" name="create-lobby-privacy" value="no" />
-            No
+          Private:
+            Yes <input className='radio_button' type="radio" name="create-lobby-privacy" value="yes" defaultChecked />
+            No <input className='radio_button' type="radio" name="create-lobby-privacy" value="no" />
+        </div>
+        <div className='input'>
+          Persistant:
+            Yes <input className='radio_button' type="radio" name="create-lobby-persistence" value="yes" />
+            No <input className='radio_button' type="radio" name="create-lobby-persistence" value="no" defaultChecked />
         </div>
         <div className='input'>
           Description: <input className='text_input' id = "create-lobby-description" />

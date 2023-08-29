@@ -27,11 +27,12 @@ const Playlist: React.FC = () => {
     // When the client connects back to the server, retrieve the video currently being played and update the playlist
     let lobby_id = location.state.lobby_id
 
-    console.log(lobby_id)
-
     console.log("joining lobby " + lobby_id)
 
-    socket.emit('theater:joinLobby')
+    if(videolist.length === 0) {
+      socket.emit('theater:joinLobby')
+    }
+
     // When the server responds to the client with what video to play
     socket.on('theater:playVideo', (vid_url) => {
       console.log("Received video to play:", vid_url)
@@ -59,7 +60,7 @@ const Playlist: React.FC = () => {
     window.addEventListener('resize', handleResize)
     // IDK bruv
     return () => {
-      socket.off('serverResponse')
+      socket.removeAllListeners
       window.removeEventListener('resize', handleResize)
     }
   }, [])
@@ -72,7 +73,7 @@ const Playlist: React.FC = () => {
     setInputValue(event.target.value);
   }
   // Allows the client to add a video to the playlist via video ID: appends the video the end of the lsit
-  const handleAddId = () => {
+  const handleAddId = async () => {
     // Take URL and obtain the Video ID from it - Make sure that it's not undefined
     if(inputValue.trim() == '') {
       return
@@ -82,6 +83,10 @@ const Playlist: React.FC = () => {
 
     // As long as Video ID isn't undefined...
     if(vid_id !== null) {
+      // Check link validity by trying to obtain a video title with youtube api
+      if(await getTitle(vid_id) === false) {
+        return
+      }
       socket.emit('theater:addVideo', vid_id)
       setInputValue('')
     }
@@ -115,9 +120,11 @@ const Playlist: React.FC = () => {
       const video_title = response.data.items[0].snippet.title
       console.log("Video title found:", video_title)
       setVideolist((prevVideolist) => [...prevVideolist, video_title])
+      return true
     }
     catch (error) {
       console.log('Error in retrieving title information:', error)
+      return false
     }
   }
   // When video ends, dequeue and start the next video immediately
@@ -140,13 +147,15 @@ const Playlist: React.FC = () => {
   const updatePlayer = (playbackState : YT.PlayerState, playbackTime: number) => {
     console.log("Received instructions from server")
     const player = playerReference.current?.internalPlayer
-    player.seekTo(playbackTime, true)
-    if(player.getPlayerState() !== playbackState && player.getPlayerState() != YouTube.PlayerState.BUFFERING) {
-      if(playbackState === YouTube.PlayerState.PAUSED) {
-        player.pauseVideo()
-      }
-      else if(playbackState === YouTube.PlayerState.PLAYING) {
-        player.playVideo()
+    if(player) {
+      player.seekTo(playbackTime, true)
+      if(player.getPlayerState() !== playbackState && player.getPlayerState() != YouTube.PlayerState.BUFFERING) {
+        if(playbackState === YouTube.PlayerState.PAUSED) {
+          player.pauseVideo()
+        }
+        else if(playbackState === YouTube.PlayerState.PLAYING) {
+          player.playVideo()
+        }
       }
     }
   }
