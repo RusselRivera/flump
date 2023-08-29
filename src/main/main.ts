@@ -207,6 +207,7 @@ function createLogoutWindow() {
   logoutWindow.on('ready-to-show', async () => {
     await authService.logout();
     logoutWindow.close();
+    createAuthWindow();
   });
 }
 
@@ -242,7 +243,6 @@ app.whenReady().then(() => {
   ipcMain.on('auth:log-out', () => {
     BrowserWindow.getAllWindows().forEach(window => window.close());
     createLogoutWindow();
-    createAuthWindow();
   });
 
   showWindow();

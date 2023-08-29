@@ -1,8 +1,18 @@
+.topRibbon{
+  position: absolute;
+  top: 0px;
+  left: 0;
+  height: 9%;
+  width: 99%;
+  font-size: 40px;
+  background-color: #3c0092;
+}
+
 .joinLobby{
   position: absolute;
-  top: 0;
+  top: 10%;
   left: 0;
-  height: 34%;
+  height: 24%;
   width: 99%;
   font-size: 40px;
   background-color: #3c0052;

@@ -7,6 +7,7 @@ import './css/TheaterScene.css'
 const Theater : React.FC = () => {
   const [displayYT, setDisplayYT] = useState(false)
   const [displayShareScreen, setDisplayShareScreen] = useState(false)
+  const [goHome, setGoHome] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   // Toggle the sidebar

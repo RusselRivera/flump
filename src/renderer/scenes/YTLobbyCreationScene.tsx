@@ -66,9 +66,17 @@ function Lobby_YT() {
 
     socket.emit('theater:createLobby', name, privacy, description, password)
   }
+    
+  const goHome = () => {
+    navigate("/")
+  }
 
   return (
     <div>
+      <div className = 'topRibbon'>
+        <button  className='button' onClick = {goHome}>Home</button>
+      </div>
+
       <div className='joinLobby'>
         <div className='header'>
           JOIN A LOBBY!
