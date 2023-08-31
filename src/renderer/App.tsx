@@ -11,6 +11,7 @@ import Theater from "./scenes/TheaterScene"
 import { useNavigate } from 'react-router-dom'
 import React, { useEffect } from 'react';
 import sessionInfo from './scenes/extra_components/SessionInfo';
+import IntroPopup from "./IntroPopup"
 
 function Hello() {
   const navigate = useNavigate();
@@ -24,6 +25,11 @@ function Hello() {
     // Obtain profile information when available (signalled by server)
     socket.on('session:obtainInfo', (username, auth_id, color, email, bio, numlobbies) => {
       sessionInfo.changeInfo(auth_id, socket.id, username, color, email, bio, numlobbies)
+
+      if (sessionInfo.username === null) {
+        navigate("/new_user")
+      }
+
       console.log('Username: ' + sessionInfo.username + '\nAuthentication ID: ' + sessionInfo.auth_id + '\nSocket ID: ' + sessionInfo.socket_id + '\nColor: ' + sessionInfo.color)
     })
   })
@@ -35,6 +41,10 @@ function Hello() {
   const logOut = () => {
     window.electron.logOut();
   }
+  
+  const test = () => {
+    navigate("/new_user")
+  }
 
   return (
     <div>
@@ -44,6 +54,7 @@ function Hello() {
       <h1>electron-react-boilerplate</h1>
       <button id = "login-button" onClick = {handleButtonClick}></button>
       <button id = "login-button" onClick = {logOut}>Logout</button>
+      <button id = "login-button" onClick = {test}>Test</button>
       <div className="Hello" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gridGap: 20 }}>
         <div>
           <ResizableButton id = "youtube" />
@@ -72,6 +83,7 @@ export default function App() {
         <Route path="/Lobby_YT" element={<Lobby_YT />} />
         <Route path="/theater" element={<Theater/>} />
         <Route path="/nico" element={<ShareScreen />} />
+        <Route path="/new_user" element={<IntroPopup />} />
       </Routes>
     </Router>
   );

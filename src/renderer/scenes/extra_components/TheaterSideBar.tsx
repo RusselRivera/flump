@@ -19,6 +19,7 @@ const TheaterSidebar : React.FC<SidebarProps> = ({isOpen, onClose, retrieveInstr
   return(
     <div className={`sidebar ${isOpen ? 'open' : ''}`}>
       <button onClick={() => retrieveInstruction('YouTube')}> YouTube </button>
+      <button onClick={() => retrieveInstruction('Twitch')}> Twitch </button>
       <button onClick={() => retrieveInstruction('ShareScreen')}> ShareScreen </button>
       <button onClick={() => goHome()}> Home </button>
       <button onClick={() => retrieveInstruction('Profile')}> Profile</button>
